@@ -1,0 +1,613 @@
+# Copyright 2019 Diffblue Limited. All Rights Reserved.
+cbmcArguments:
+  # Do not generate coverage comments on generated tests.
+  java-generate-no-comments: true
+  # Constrain the size of arrays created in the analyzed code.
+  java-max-vla-length: 100000
+phases:
+  -
+    # Phase 0 PRETTY, SIMPLE and SMART - pretty tests, do not test private methods directly, Smart-Harness
+    timeout: 180
+    cbmcArguments:
+      # Use simple models first containers (ArrayList, HashMap, HashSet,...) will have a maximum size of one.
+      classpath: '/tools/cbmc/models-simple-overlay.jar:/tools/cbmc/models.jar:.'
+      # Set a limit on the number of instructions that can be generated as part of a test trace.
+      depth: 1500
+      # Maximum allowed length for an array passed as test input.
+      max-nondet-array-length: 10
+      # Bound the length of input strings.
+      max-nondet-string-length: 10
+      # Add constraint that strings are printable
+      string-printable: true
+      # Make implicit runtime exceptions explicit.
+      throw-runtime-exceptions: false
+      # Set an upper bound on loop unwinding.
+      unwind: 1
+      # Do not test any methods that have the specified access level.
+      do-not-test-methods-with-access: [private]
+      # Instrument the entry point function only.
+      cover-function-only: false
+      # Instrument the file as opposed to the function only
+      cover-only: file
+      # Set string input value
+      string-input-value: ["foo", "Bar", "BAZ", "1234", "1a 2b 3c", "A1B2C3", "a,b,c", "1", "2", "3", "a/b/c", "a'b'c", ",", "/", "'"]
+      # Instantiate classes using the simplest constructor strategy
+      smart-harness: simplest-constructor-and-nondet
+  -
+    # Phase 1 PRETTY AND COMPLEX - standard models only, pretty tests, do not test private methods directly, input factory
+    timeout: 180
+    cbmcArguments:
+      # Use the standard models library
+      classpath: '/tools/cbmc/models.jar:.'
+      # Set a limit on the number of instructions that can be generated as part of a test trace.
+      depth: false
+      # never initialize reference-typed parameter to the entry point with null
+      java-assume-inputs-non-null: true
+      # Maximum allowed length for an array passed as test input.
+      max-nondet-array-length: 10
+      # Bound the length of input strings.
+      max-nondet-string-length: 10
+      # Add constraint that strings are printable
+      string-printable: true
+      # Set string input value
+      string-input-value: ["foo", "Bar", "BAZ", "1234", "1a 2b 3c", "A1B2C3", "a,b,c", "1", "2", "3", "a/b/c", "a'b'c", ",", "/", "'"]
+      # Make implicit runtime exceptions explicit.
+      throw-runtime-exceptions: false
+      # Set an upper bound on loop unwinding.
+      unwind: 2
+      # Do not test any methods that have the specified access level.
+      do-not-test-methods-with-access: [private]
+      # Instrument the entry point function only.
+      cover-function-only: false
+      # instrument the file as opposed to the function only
+      cover-only: file
+      # Limit input factory recursive depth (default 0 = no recursion allowed)
+      java-test-input-factory-bmc-recursion-limit: 4
+  -
+    # Phase 2 FIFO Strategy - pretty tests, do not test private methods directly, fifo
+    timeout: 100
+    cbmcArguments:
+      # Use the standard models library
+      classpath: '/tools/cbmc/models.jar:.'
+      # Set a limit on the number of instructions that can be generated as part of a test trace.
+      depth: false
+      # never initialize reference-typed parameter to the entry point with null
+      java-assume-inputs-non-null: true
+      # Maximum allowed length for an array passed as test input.
+      max-nondet-array-length: 30
+      # Add constraint that strings are printable
+      max-nondet-string-length: 100
+      # Explores the program tree breadth-first.
+      paths: fifo
+      # Set string input value
+      string-input-value: ["foo", "Bar", "BAZ", "1234", "1a 2b 3c", "A1B2C3", "a,b,c", "1", "2", "3", "a/b/c", "a'b'c", ",", "/", "'"]
+      # Add constraint that strings are printable
+      string-printable: true
+      # Make implicit runtime exceptions explicit.
+      throw-runtime-exceptions: false
+      # Set an upper bound on loop unwinding.
+      unwind: false
+      # Do not test any methods that have the specified access level.
+      do-not-test-methods-with-access: [private]
+      # Instrument the entry point function only.
+      cover-function-only: false
+      # instrument the file as opposed to the function only
+      cover-only: file
+  -
+    # Phase 3 Exceptions - do not test private methods directly
+    timeout: 180
+    cbmcArguments:
+      # Use simple models containers first (ArrayList, HashMap, HashSet,...) will have a maximum size of one.
+      classpath: '/tools/cbmc/models-simple-overlay.jar:/tools/cbmc/models.jar:.'
+      # Set a limit on the number of instructions that can be generated as part of a test trace.
+      depth: false
+      # Maximum allowed length for an array passed as test input.
+      max-nondet-array-length: 30
+      # Bound the length of input strings.
+      max-nondet-string-length: 30
+      # Add constraint that strings are printable
+      string-printable: false
+      # Make implicit runtime exceptions explicit.
+      throw-runtime-exceptions: true
+      # Set an upper bound on loop unwinding.
+      unwind: 3
+      # Do not test any methods that have the specified access level.
+      do-not-test-methods-with-access: [private]
+      # Instrument the entry point function only.
+      cover-function-only: false
+      # instrument the file as opposed to the function only
+      cover-only: file
+  -
+    # Phase 4 Direct testing - test private methods directly, increased reflection
+    timeout: 180
+    cbmcArguments:
+      # Use simple models containers first (ArrayList, HashMap, HashSet,...) will have a maximum size of one.
+      classpath: '/tools/cbmc/models-simple-overlay.jar:/tools/cbmc/models.jar:.'
+      # Set a limit on the number of instructions that can be generated as part of a test trace.
+      depth: 1500
+      # never initialize reference-typed parameter to the entry point with null
+      java-assume-inputs-non-null: true
+      # Maximum allowed length for an array passed as test input.
+      max-nondet-array-length: 10
+      # Bound the length of input strings.
+      max-nondet-string-length: 10
+      # Add constraint that strings are printable
+      string-printable: true
+      # Make implicit runtime exceptions explicit.
+      throw-runtime-exceptions: false
+      # Set an upper bound on loop unwinding.
+      unwind: 1
+      # Set string input value
+      string-input-value: ["foo", "Bar", "BAZ", "1234", "1a 2b 3c", "A1B2C3", "a,b,c", "1", "2", "3", "a/b/c", "a'b'c", ",", "/", "'"]
+      # If the logs contain output of the following then proceed to phase X
+    nextPhase:
+      # If the function is not analysable then do not pass onto the next phase
+      not_analyzed: null
+  -
+    # PHASE 5 Mocking - aggressive mocking, do not test private methods directly
+    timeout: 180
+    cbmcArguments:
+      # Use simple models containers first (ArrayList, HashMap, HashSet,...) will have a maximum size of one.
+      classpath: '/tools/cbmc/models-simple-overlay.jar:/tools/cbmc/models.jar:.'
+      # Set a limit on the number of instructions that can be generated as part of a test trace.
+      depth: 3000
+      # never initialize reference-typed parameter to the entry point with null
+      java-assume-inputs-non-null: true
+      # Only load the class (and related inner/outer classes) containing the method under test,
+      load-containing-class-only: true
+      # Maximum allowed length for an array passed as test input.
+      max-nondet-array-length: 30
+      # Bound the length of input strings.
+      max-nondet-string-length: 100
+      # Add constraint that strings are printable
+      string-printable: false
+      # Make implicit runtime exceptions explicit.
+      throw-runtime-exceptions: true
+      # Set an upper bound on loop unwinding.
+      unwind: 3
+      # Do not test any methods that have the specified access level.
+      do-not-test-methods-with-access: [private]
+      # Instrument the entry point function only.
+      cover-function-only: false
+      # instrument the file as opposed to the function only
+      cover-only: file
+# Copyright 2019 Diffblue Limited. All Rights Reserved.
+cbmcArguments:
+  # Do not generate coverage comments on generated tests.
+  java-generate-no-comments: true
+  # Constrain the size of arrays created in the analyzed code.
+  java-max-vla-length: 100000
+phases:
+  -
+    # Phase 0 PRETTY, SIMPLE and SMART - pretty tests, do not test private methods directly, Smart-Harness
+    timeout: 180
+    cbmcArguments:
+      # Use simple models first containers (ArrayList, HashMap, HashSet,...) will have a maximum size of one.
+      classpath: '/tools/cbmc/models-simple-overlay.jar:/tools/cbmc/models.jar:.'
+      # Set a limit on the number of instructions that can be generated as part of a test trace.
+      depth: 1500
+      # Maximum allowed length for an array passed as test input.
+      max-nondet-array-length: 10
+      # Bound the length of input strings.
+      max-nondet-string-length: 10
+      # Add constraint that strings are printable
+      string-printable: true
+      # Make implicit runtime exceptions explicit.
+      throw-runtime-exceptions: false
+      # Set an upper bound on loop unwinding.
+      unwind: 1
+      # Do not test any methods that have the specified access level.
+      do-not-test-methods-with-access: [private]
+      # Instrument the entry point function only.
+      cover-function-only: false
+      # Instrument the file as opposed to the function only
+      cover-only: file
+      # Set string input value
+      string-input-value: ["foo", "Bar", "BAZ", "1234", "1a 2b 3c", "A1B2C3", "a,b,c", "1", "2", "3", "a/b/c", "a'b'c", ",", "/", "'"]
+      # Instantiate classes using the simplest constructor strategy
+      smart-harness: simplest-constructor-and-nondet
+  -
+    # Phase 1 PRETTY AND COMPLEX - standard models only, pretty tests, do not test private methods directly, input factory
+    timeout: 180
+    cbmcArguments:
+      # Use the standard models library
+      classpath: '/tools/cbmc/models.jar:.'
+      # Set a limit on the number of instructions that can be generated as part of a test trace.
+      depth: false
+      # never initialize reference-typed parameter to the entry point with null
+      java-assume-inputs-non-null: true
+      # Maximum allowed length for an array passed as test input.
+      max-nondet-array-length: 10
+      # Bound the length of input strings.
+      max-nondet-string-length: 10
+      # Add constraint that strings are printable
+      string-printable: true
+      # Set string input value
+      string-input-value: ["foo", "Bar", "BAZ", "1234", "1a 2b 3c", "A1B2C3", "a,b,c", "1", "2", "3", "a/b/c", "a'b'c", ",", "/", "'"]
+      # Make implicit runtime exceptions explicit.
+      throw-runtime-exceptions: false
+      # Set an upper bound on loop unwinding.
+      unwind: 2
+      # Do not test any methods that have the specified access level.
+      do-not-test-methods-with-access: [private]
+      # Instrument the entry point function only.
+      cover-function-only: false
+      # instrument the file as opposed to the function only
+      cover-only: file
+      # Limit input factory recursive depth (default 0 = no recursion allowed)
+      java-test-input-factory-bmc-recursion-limit: 4
+  -
+    # Phase 2 FIFO Strategy - pretty tests, do not test private methods directly, fifo
+    timeout: 100
+    cbmcArguments:
+      # Use the standard models library
+      classpath: '/tools/cbmc/models.jar:.'
+      # Set a limit on the number of instructions that can be generated as part of a test trace.
+      depth: false
+      # never initialize reference-typed parameter to the entry point with null
+      java-assume-inputs-non-null: true
+      # Maximum allowed length for an array passed as test input.
+      max-nondet-array-length: 30
+      # Add constraint that strings are printable
+      max-nondet-string-length: 100
+      # Explores the program tree breadth-first.
+      paths: fifo
+      # Set string input value
+      string-input-value: ["foo", "Bar", "BAZ", "1234", "1a 2b 3c", "A1B2C3", "a,b,c", "1", "2", "3", "a/b/c", "a'b'c", ",", "/", "'"]
+      # Add constraint that strings are printable
+      string-printable: true
+      # Make implicit runtime exceptions explicit.
+      throw-runtime-exceptions: false
+      # Set an upper bound on loop unwinding.
+      unwind: false
+      # Do not test any methods that have the specified access level.
+      do-not-test-methods-with-access: [private]
+      # Instrument the entry point function only.
+      cover-function-only: false
+      # instrument the file as opposed to the function only
+      cover-only: file
+  -
+    # Phase 3 Exceptions - do not test private methods directly
+    timeout: 180
+    cbmcArguments:
+      # Use simple models containers first (ArrayList, HashMap, HashSet,...) will have a maximum size of one.
+      classpath: '/tools/cbmc/models-simple-overlay.jar:/tools/cbmc/models.jar:.'
+      # Set a limit on the number of instructions that can be generated as part of a test trace.
+      depth: false
+      # Maximum allowed length for an array passed as test input.
+      max-nondet-array-length: 30
+      # Bound the length of input strings.
+      max-nondet-string-length: 30
+      # Add constraint that strings are printable
+      string-printable: false
+      # Make implicit runtime exceptions explicit.
+      throw-runtime-exceptions: true
+      # Set an upper bound on loop unwinding.
+      unwind: 3
+      # Do not test any methods that have the specified access level.
+      do-not-test-methods-with-access: [private]
+      # Instrument the entry point function only.
+      cover-function-only: false
+      # instrument the file as opposed to the function only
+      cover-only: file
+  -
+    # Phase 4 Direct testing - test private methods directly, increased reflection
+    timeout: 180
+    cbmcArguments:
+      # Use simple models containers first (ArrayList, HashMap, HashSet,...) will have a maximum size of one.
+      classpath: '/tools/cbmc/models-simple-overlay.jar:/tools/cbmc/models.jar:.'
+      # Set a limit on the number of instructions that can be generated as part of a test trace.
+      depth: 1500
+      # never initialize reference-typed parameter to the entry point with null
+      java-assume-inputs-non-null: true
+      # Maximum allowed length for an array passed as test input.
+      max-nondet-array-length: 10
+      # Bound the length of input strings.
+      max-nondet-string-length: 10
+      # Add constraint that strings are printable
+      string-printable: true
+      # Make implicit runtime exceptions explicit.
+      throw-runtime-exceptions: false
+      # Set an upper bound on loop unwinding.
+      unwind: 1
+      # Set string input value
+      string-input-value: ["foo", "Bar", "BAZ", "1234", "1a 2b 3c", "A1B2C3", "a,b,c", "1", "2", "3", "a/b/c", "a'b'c", ",", "/", "'"]
+      # If the logs contain output of the following then proceed to phase X
+    nextPhase:
+      # If the function is not analysable then do not pass onto the next phase
+      not_analyzed: null
+  -
+    # PHASE 5 Mocking - aggressive mocking, do not test private methods directly
+    timeout: 180
+    cbmcArguments:
+      # Use simple models containers first (ArrayList, HashMap, HashSet,...) will have a maximum size of one.
+      classpath: '/tools/cbmc/models-simple-overlay.jar:/tools/cbmc/models.jar:.'
+      # Set a limit on the number of instructions that can be generated as part of a test trace.
+      depth: 3000
+      # never initialize reference-typed parameter to the entry point with null
+      java-assume-inputs-non-null: true
+      # Only load the class (and related inner/outer classes) containing the method under test,
+      load-containing-class-only: true
+      # Maximum allowed length for an array passed as test input.
+      max-nondet-array-length: 30
+      # Bound the length of input strings.
+      max-nondet-string-length: 100
+      # Add constraint that strings are printable
+      string-printable: false
+      # Make implicit runtime exceptions explicit.
+      throw-runtime-exceptions: true
+      # Set an upper bound on loop unwinding.
+      unwind: 3
+      # Do not test any methods that have the specified access level.
+      do-not-test-methods-with-access: [private]
+      # Instrument the entry point function only.
+      cover-function-only: false
+      # instrument the file as opposed to the function only
+      cover-only: file
+units:
+ - target:
+   - dir: pay/pay-service-impl/target/classes
+     file: cn/iocoder/mall/pay/biz/dataobject/PayRefundDO.class
+     sourceDir: pay/pay-service-impl/src/main/java
+     sourceFile: cn/iocoder/mall/pay/biz/dataobject/PayRefundDO.java
+   - dir: common/common-framework/target/classes
+     file: cn/iocoder/common/framework/dataobject/BaseDO.class
+     sourceDir: common/common-framework/src/main/java
+     sourceFile: cn/iocoder/common/framework/dataobject/BaseDO.java
+ - target:
+   - dir: promotion/promotion-service-api/target/classes
+     file: cn/iocoder/mall/promotion/api/bo/CouponCardDetailBO.class
+     sourceDir: promotion/promotion-service-api/src/main/java
+     sourceFile: cn/iocoder/mall/promotion/api/bo/CouponCardDetailBO.java
+ - target:
+   - dir: search/search-service-impl/target/classes
+     file: cn/iocoder/mall/search/biz/dataobject/ESProductDO.class
+     sourceDir: search/search-service-impl/src/main/java
+     sourceFile: cn/iocoder/mall/search/biz/dataobject/ESProductDO.java
+ - target:
+   - dir: pay/pay-service-api/target/classes
+     file: cn/iocoder/mall/pay/api/bo/transaction/PayTransactionBO.class
+     sourceDir: pay/pay-service-api/src/main/java
+     sourceFile: cn/iocoder/mall/pay/api/bo/transaction/PayTransactionBO.java
+ - target:
+   - dir: promotion/promotion-service-api/target/classes
+     file: cn/iocoder/mall/promotion/api/dto/CouponCardTemplateAddDTO.class
+     sourceDir: promotion/promotion-service-api/src/main/java
+     sourceFile: cn/iocoder/mall/promotion/api/dto/CouponCardTemplateAddDTO.java
+ - target:
+   - dir: pay/pay-service-api/target/classes
+     file: cn/iocoder/mall/pay/api/bo/refund/PayRefundBO.class
+     sourceDir: pay/pay-service-api/src/main/java
+     sourceFile: cn/iocoder/mall/pay/api/bo/refund/PayRefundBO.java
+ - target:
+   - dir: promotion/promotion-service-api/target/classes
+     file: cn/iocoder/mall/promotion/api/bo/CouponCardBO.class
+     sourceDir: promotion/promotion-service-api/src/main/java
+     sourceFile: cn/iocoder/mall/promotion/api/bo/CouponCardBO.java
+ - target:
+   - dir: common/common-framework/target/classes
+     file: cn/iocoder/common/framework/util/CollectionUtil.class
+     sourceDir: common/common-framework/src/main/java
+     sourceFile: cn/iocoder/common/framework/util/CollectionUtil.java
+ - target:
+   - dir: pay/pay-service-impl/target/classes
+     file: cn/iocoder/mall/pay/biz/dataobject/PayTransactionDO.class
+     sourceDir: pay/pay-service-impl/src/main/java
+     sourceFile: cn/iocoder/mall/pay/biz/dataobject/PayTransactionDO.java
+   - dir: common/common-framework/target/classes
+     file: cn/iocoder/common/framework/dataobject/BaseDO.class
+     sourceDir: common/common-framework/src/main/java
+     sourceFile: cn/iocoder/common/framework/dataobject/BaseDO.java
+   - dir: common/common-framework/target/classes
+     file: cn/iocoder/common/framework/dataobject/DeletableDO.class
+     sourceDir: common/common-framework/src/main/java
+     sourceFile: cn/iocoder/common/framework/dataobject/DeletableDO.java
+ - target:
+   - dir: order/order-service-api/target/classes
+     file: cn/iocoder/mall/order/api/bo/OrderBO.class
+     sourceDir: order/order-service-api/src/main/java
+     sourceFile: cn/iocoder/mall/order/api/bo/OrderBO.java
+   - dir: order/order-service-api/target/classes
+     file: cn/iocoder/mall/order/api/bo/OrderRecipientBO.class
+     sourceDir: order/order-service-api/src/main/java
+     sourceFile: cn/iocoder/mall/order/api/bo/OrderRecipientBO.java
+ - target:
+   - dir: order/order-service-api/target/classes
+     file: cn/iocoder/mall/order/api/bo/OrderInfoBO.class
+     sourceDir: order/order-service-api/src/main/java
+     sourceFile: cn/iocoder/mall/order/api/bo/OrderInfoBO.java
+   - dir: order/order-service-api/target/classes
+     file: cn/iocoder/mall/order/api/bo/OrderInfoBO$Recipient.class
+     sourceDir: order/order-service-api/src/main/java
+     sourceFile: cn/iocoder/mall/order/api/bo/OrderInfoBO.java
+   - dir: order/order-service-api/target/classes
+     file: cn/iocoder/mall/order/api/bo/OrderInfoBO$LogisticsDetail.class
+     sourceDir: order/order-service-api/src/main/java
+     sourceFile: cn/iocoder/mall/order/api/bo/OrderInfoBO.java
+ - target:
+   - dir: promotion/promotion-application/target/classes
+     file: cn/iocoder/mall/promotion/application/vo/admins/AdminsCouponTemplateVO.class
+     sourceDir: promotion/promotion-application/src/main/java
+     sourceFile: cn/iocoder/mall/promotion/application/vo/admins/AdminsCouponTemplateVO.java
+ - target:
+   - dir: promotion/promotion-application/target/classes
+     file: cn/iocoder/mall/promotion/application/vo/users/UsersCouponTemplateVO.class
+     sourceDir: promotion/promotion-application/src/main/java
+     sourceFile: cn/iocoder/mall/promotion/application/vo/users/UsersCouponTemplateVO.java
+ - target:
+   - dir: order/order-service-api/target/classes
+     file: cn/iocoder/mall/order/api/bo/OrderReturnListBO$OrderReturn.class
+     sourceDir: order/order-service-api/src/main/java
+     sourceFile: cn/iocoder/mall/order/api/bo/OrderReturnListBO.java
+ - target:
+   - dir: order/order-service-api/target/classes
+     file: cn/iocoder/mall/order/api/bo/OrderItemBO.class
+     sourceDir: order/order-service-api/src/main/java
+     sourceFile: cn/iocoder/mall/order/api/bo/OrderItemBO.java
+ - target:
+   - dir: order/order-service-api/target/classes
+     file: cn/iocoder/mall/order/api/dto/OrderCommentCreateDTO.class
+     sourceDir: order/order-service-api/src/main/java
+     sourceFile: cn/iocoder/mall/order/api/dto/OrderCommentCreateDTO.java
+ - target:
+   - dir: system/system-service-api/target/classes
+     file: cn/iocoder/mall/admin/api/dto/systemlog/ExceptionLogAddDTO.class
+     sourceDir: system/system-service-api/src/main/java
+     sourceFile: cn/iocoder/mall/admin/api/dto/systemlog/ExceptionLogAddDTO.java
+ - target:
+   - dir: system/system-service-impl/target/classes
+     file: cn/iocoder/mall/admin/dataobject/ExceptionLogDO.class
+     sourceDir: system/system-service-impl/src/main/java
+     sourceFile: cn/iocoder/mall/admin/dataobject/ExceptionLogDO.java
+   - dir: common/common-framework/target/classes
+     file: cn/iocoder/common/framework/dataobject/BaseDO.class
+     sourceDir: common/common-framework/src/main/java
+     sourceFile: cn/iocoder/common/framework/dataobject/BaseDO.java
+ - target:
+   - dir: search/search-service-api/target/classes
+     file: cn/iocoder/mall/search/api/bo/ProductBO.class
+     sourceDir: search/search-service-api/src/main/java
+     sourceFile: cn/iocoder/mall/search/api/bo/ProductBO.java
+ - target:
+   - dir: system/system-service-impl/target/classes
+     file: cn/iocoder/mall/admin/dataobject/AccessLogDO.class
+     sourceDir: system/system-service-impl/src/main/java
+     sourceFile: cn/iocoder/mall/admin/dataobject/AccessLogDO.java
+   - dir: common/common-framework/target/classes
+     file: cn/iocoder/common/framework/dataobject/BaseDO.class
+     sourceDir: common/common-framework/src/main/java
+     sourceFile: cn/iocoder/common/framework/dataobject/BaseDO.java
+ - target:
+   - dir: order/order-service-impl/target/classes
+     file: cn/iocoder/mall/order/biz/dataobject/OrderCommentDO.class
+     sourceDir: order/order-service-impl/src/main/java
+     sourceFile: cn/iocoder/mall/order/biz/dataobject/OrderCommentDO.java
+   - dir: common/common-framework/target/classes
+     file: cn/iocoder/common/framework/dataobject/BaseDO.class
+     sourceDir: common/common-framework/src/main/java
+     sourceFile: cn/iocoder/common/framework/dataobject/BaseDO.java
+ - target:
+   - dir: promotion/promotion-service-api/target/classes
+     file: cn/iocoder/mall/promotion/api/bo/CouponTemplateBO.class
+     sourceDir: promotion/promotion-service-api/src/main/java
+     sourceFile: cn/iocoder/mall/promotion/api/bo/CouponTemplateBO.java
+ - target:
+   - dir: order/order-service-impl/target/classes
+     file: cn/iocoder/mall/order/biz/dataobject/OrderDO.class
+     sourceDir: order/order-service-impl/src/main/java
+     sourceFile: cn/iocoder/mall/order/biz/dataobject/OrderDO.java
+   - dir: common/common-framework/target/classes
+     file: cn/iocoder/common/framework/dataobject/BaseDO.class
+     sourceDir: common/common-framework/src/main/java
+     sourceFile: cn/iocoder/common/framework/dataobject/BaseDO.java
+   - dir: common/common-framework/target/classes
+     file: cn/iocoder/common/framework/dataobject/DeletableDO.class
+     sourceDir: common/common-framework/src/main/java
+     sourceFile: cn/iocoder/common/framework/dataobject/DeletableDO.java
+ - target:
+   - dir: pay/pay-service-impl/target/classes
+     file: cn/iocoder/mall/pay/biz/client/PaySDKFactory.class
+     sourceDir: pay/pay-service-impl/src/main/java
+     sourceFile: cn/iocoder/mall/pay/biz/client/PaySDKFactory.java
+   - dir: pay/pay-service-impl/target/classes
+     file: cn/iocoder/mall/pay/biz/client/AbstractPaySDK.class
+     sourceDir: pay/pay-service-impl/src/main/java
+     sourceFile: cn/iocoder/mall/pay/biz/client/AbstractPaySDK.java
+   - dir: pay/pay-service-impl/target/classes
+     file: cn/iocoder/mall/pay/biz/client/PingxxPaySDK.class
+     sourceDir: pay/pay-service-impl/src/main/java
+     sourceFile: cn/iocoder/mall/pay/biz/client/PingxxPaySDK.java
+   - dir: pay/pay-service-api/target/classes
+     file: cn/iocoder/mall/pay/api/constant/PayChannelEnum.class
+     sourceDir: pay/pay-service-api/src/main/java
+     sourceFile: cn/iocoder/mall/pay/api/constant/PayChannelEnum.java
+ - target:
+   - dir: order/order-service-api/target/classes
+     file: cn/iocoder/mall/order/api/bo/OrderReturnInfoBO$ReturnInfo.class
+     sourceDir: order/order-service-api/src/main/java
+     sourceFile: cn/iocoder/mall/order/api/bo/OrderReturnInfoBO.java
+ - target:
+   - dir: order/order-application/target/classes
+     file: cn/iocoder/mall/order/application/vo/UsersCartDetailVO$Sku.class
+     sourceDir: order/order-application/src/main/java
+     sourceFile: cn/iocoder/mall/order/application/vo/UsersCartDetailVO.java
+   - dir: promotion/promotion-service-api/target/classes
+     file: cn/iocoder/mall/promotion/api/bo/PromotionActivityBO.class
+     sourceDir: promotion/promotion-service-api/src/main/java
+     sourceFile: cn/iocoder/mall/promotion/api/bo/PromotionActivityBO.java
+   - dir: order/order-application/target/classes
+     file: cn/iocoder/mall/order/application/vo/UsersCartDetailVO$Spu.class
+     sourceDir: order/order-application/src/main/java
+     sourceFile: cn/iocoder/mall/order/application/vo/UsersCartDetailVO.java
+ - target:
+   - dir: common/common-framework/target/classes
+     file: cn/iocoder/common/framework/util/ExceptionUtil.class
+     sourceDir: common/common-framework/src/main/java
+     sourceFile: cn/iocoder/common/framework/util/ExceptionUtil.java
+   - dir: common/common-framework/target/classes
+     file: cn/iocoder/common/framework/exception/ServiceException.class
+     sourceDir: common/common-framework/src/main/java
+     sourceFile: cn/iocoder/common/framework/exception/ServiceException.java
+ - target:
+   - dir: order/order-service-impl/target/classes
+     file: cn/iocoder/mall/order/biz/dataobject/OrderExchangeDO.class
+     sourceDir: order/order-service-impl/src/main/java
+     sourceFile: cn/iocoder/mall/order/biz/dataobject/OrderExchangeDO.java
+   - dir: common/common-framework/target/classes
+     file: cn/iocoder/common/framework/dataobject/BaseDO.class
+     sourceDir: common/common-framework/src/main/java
+     sourceFile: cn/iocoder/common/framework/dataobject/BaseDO.java
+   - dir: common/common-framework/target/classes
+     file: cn/iocoder/common/framework/dataobject/DeletableDO.class
+     sourceDir: common/common-framework/src/main/java
+     sourceFile: cn/iocoder/common/framework/dataobject/DeletableDO.java
+ - target:
+   - dir: promotion/promotion-service-impl/target/classes
+     file: cn/iocoder/mall/promotion/biz/dataobject/CouponTemplateDO.class
+     sourceDir: promotion/promotion-service-impl/src/main/java
+     sourceFile: cn/iocoder/mall/promotion/biz/dataobject/CouponTemplateDO.java
+   - dir: common/common-framework/target/classes
+     file: cn/iocoder/common/framework/dataobject/BaseDO.class
+     sourceDir: common/common-framework/src/main/java
+     sourceFile: cn/iocoder/common/framework/dataobject/BaseDO.java
+ - target:
+   - dir: order/order-service-impl/target/classes
+     file: cn/iocoder/mall/order/biz/dataobject/OrderReturnDO.class
+     sourceDir: order/order-service-impl/src/main/java
+     sourceFile: cn/iocoder/mall/order/biz/dataobject/OrderReturnDO.java
+   - dir: common/common-framework/target/classes
+     file: cn/iocoder/common/framework/dataobject/BaseDO.class
+     sourceDir: common/common-framework/src/main/java
+     sourceFile: cn/iocoder/common/framework/dataobject/BaseDO.java
+ - target:
+   - dir: promotion/promotion-service-impl/target/classes
+     file: cn/iocoder/mall/promotion/biz/dataobject/CouponCardDO.class
+     sourceDir: promotion/promotion-service-impl/src/main/java
+     sourceFile: cn/iocoder/mall/promotion/biz/dataobject/CouponCardDO.java
+   - dir: common/common-framework/target/classes
+     file: cn/iocoder/common/framework/dataobject/BaseDO.class
+     sourceDir: common/common-framework/src/main/java
+     sourceFile: cn/iocoder/common/framework/dataobject/BaseDO.java
+ - target:
+   - dir: common/common-framework/target/classes
+     file: cn/iocoder/common/framework/util/ValidationUtil.class
+     sourceDir: common/common-framework/src/main/java
+     sourceFile: cn/iocoder/common/framework/util/ValidationUtil.java
+ - target:
+   - dir: order/order-service-impl/target/classes
+     file: cn/iocoder/mall/order/biz/dataobject/OrderItemDO.class
+     sourceDir: order/order-service-impl/src/main/java
+     sourceFile: cn/iocoder/mall/order/biz/dataobject/OrderItemDO.java
+   - dir: common/common-framework/target/classes
+     file: cn/iocoder/common/framework/dataobject/BaseDO.class
+     sourceDir: common/common-framework/src/main/java
+     sourceFile: cn/iocoder/common/framework/dataobject/BaseDO.java
+   - dir: common/common-framework/target/classes
+     file: cn/iocoder/common/framework/dataobject/DeletableDO.class
+     sourceDir: common/common-framework/src/main/java
+     sourceFile: cn/iocoder/common/framework/dataobject/DeletableDO.java
+ - target:
+   - dir: common/common-framework/target/classes
+     file: cn/iocoder/common/framework/util/MathUtil.class
+     sourceDir: common/common-framework/src/main/java
+     sourceFile: cn/iocoder/common/framework/util/MathUtil.java
